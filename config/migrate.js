@@ -21,3 +21,5 @@ const createTables = async () => {
 const migration = async () => {
     await createTables();
 };
+
+module.exports = { createTables };

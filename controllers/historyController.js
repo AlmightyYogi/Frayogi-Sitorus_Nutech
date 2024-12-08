@@ -1,20 +1,16 @@
-const Transaction = require('../models/transactionModel');
+const db = require('../config/db');
 
-// Get transaction history
-const getHistory = (req, res) => {
-  const userId = req.user.id;
-  const { limit = 3, offset = 0 } = req.query;
+const getHistory = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { limit = 3, offset = 0 } = req.query;
 
-  Transaction.getTransactionHistory(userId, parseInt(offset), parseInt(limit), (err, result) => {
-    if (err) {
-      return res.status(500).json({
-        status: 500,
-        message: 'Internal server error',
-        data: null
-      });
-    }
+    const [result] = await db.query(
+      `SELECT * FROM transactions WHERE user_id = ? ORDER BY created_on DESC LIMIT ?, ?`,
+      [userId, parseInt(offset), parseInt(limit)]
+    );
 
-    return res.status(200).json({
+    res.status(200).json({
       status: 0,
       message: 'Get History Berhasil',
       data: {
@@ -23,7 +19,13 @@ const getHistory = (req, res) => {
         records: result
       }
     });
-  });
+  } catch (err) {
+    res.status(500).json({
+      status: 500,
+      message: 'Internal server error',
+      data: null
+    });
+  }
 };
 
 module.exports = { getHistory };

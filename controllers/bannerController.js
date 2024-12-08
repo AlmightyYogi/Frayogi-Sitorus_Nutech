@@ -1,8 +1,8 @@
-const Banner = require('../models/bannerModel');
+const db = require('../config/db');
 
 const getAllBanners = async (req, res) => {
     try {
-        const banners = await Banner.getAll();
+        const [banners] = await db.query('SELECT * FROM banners');
         res.status(200).json({
             status: 0,
             message: 'Sukses',

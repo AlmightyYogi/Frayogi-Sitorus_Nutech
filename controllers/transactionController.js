@@ -1,29 +1,22 @@
-const Balance = require('../models/balanceModel');
-const Transaction = require('../models/transactionModel');
-const Service = require('../models/serviceModel');  // Menambahkan model untuk layanan
+const db = require('../config/db');
 
-const makeTransaction = (req, res) => {
-  const userId = req.user.id;
-  const { service_code } = req.body;
+const makeTransaction = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { service_code } = req.body;
 
-  // Validasi input parameter
-  if (!service_code) {
-    return res.status(400).json({
-      status: 102,
-      message: 'Parameter tidak valid',
-      data: null
-    });
-  }
-
-  // Ambil informasi tarif layanan berdasarkan service_code
-  Service.getServiceByCode(service_code, (err, serviceResult) => {
-    if (err) {
-      return res.status(500).json({
-        status: 500,
-        message: 'Gagal mengambil informasi layanan',
+    if (!service_code) {
+      return res.status(400).json({
+        status: 102,
+        message: 'Parameter tidak valid',
         data: null
       });
     }
+
+    const [serviceResult] = await db.query(
+      `SELECT * FROM services WHERE service_code = ?`,
+      [service_code]
+    );
 
     if (serviceResult.length === 0) {
       return res.status(400).json({
@@ -35,65 +28,51 @@ const makeTransaction = (req, res) => {
 
     const serviceTariff = serviceResult[0].service_tariff;
 
-    // Ambil saldo pengguna
-    Balance.getBalanceByUserId(userId, (err, balanceResult) => {
-      if (err) {
-        return res.status(500).json({
-          status: 500,
-          message: 'Gagal mengambil saldo',
-          data: null
-        });
-      }
+    const [balanceResult] = await db.query(
+      `SELECT balance FROM balances WHERE user_id = ?`,
+      [userId]
+    );
 
-      // Cek apakah saldo mencukupi
-      if (balanceResult.length === 0 || balanceResult[0].balance < serviceTariff) {
-        return res.status(400).json({
-          status: 101,
-          message: 'Saldo anda tidak cukup',
-          data: null
-        });
-      }
-
-      // Kurangi saldo pengguna
-      Balance.deductBalance(userId, serviceTariff, (err) => {
-        if (err) {
-          return res.status(500).json({
-            status: 500,
-            message: 'Gagal mengurangi saldo',
-            data: null
-          });
-        }
-
-        // Buat nomor invoice unik
-        const invoiceNumber = `INV${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-
-        // Buat transaksi
-        Transaction.createTransaction(userId, service_code, 'PAYMENT', `Payment for ${service_code}`, serviceTariff, invoiceNumber, (err) => {
-          if (err) {
-            return res.status(500).json({
-              status: 500,
-              message: 'Gagal membuat transaksi',
-              data: null
-            });
-          }
-
-          // Respons sukses
-          return res.status(200).json({
-            status: 0,
-            message: 'Transaksi berhasil',
-            data: {
-              invoice_number: invoiceNumber,
-              service_code: service_code,
-              service_name: serviceResult[0].service_name,  // Nama layanan
-              transaction_type: 'PAYMENT',
-              total_amount: serviceTariff,
-              created_on: new Date().toISOString()
-            }
-          });
-        });
+    if (balanceResult.length === 0 || balanceResult[0].balance < serviceTariff) {
+      return res.status(400).json({
+        status: 101,
+        message: 'Saldo anda tidak cukup',
+        data: null
       });
+    }
+
+    await db.query(
+      `UPDATE balances SET balance = balance - ? WHERE user_id = ?`,
+      [serviceTariff, userId]
+    );
+
+    const invoiceNumber = `INV${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+    await db.query(
+      `INSERT INTO transactions (user_id, service_code, transaction_type, description, total_amount, invoice_number)
+      VALUES (?, ?, ?, ?, ?, ?)`,
+      [userId, service_code, 'PAYMENT', `Payment for ${service_code}`, serviceTariff, invoiceNumber]
+    );
+
+    res.status(200).json({
+      status: 0,
+      message: 'Transaksi berhasil',
+      data: {
+        invoice_number: invoiceNumber,
+        service_code: service_code,
+        service_name: serviceResult[0].service_name,
+        transaction_type: 'PAYMENT',
+        total_amount: serviceTariff,
+        created_on: new Date().toISOString()
+      }
     });
-  });
+  } catch (err) {
+    res.status(500).json({
+      status: 500,
+      message: 'Internal server error',
+      data: null
+    });
+  }
 };
 
 module.exports = { makeTransaction };

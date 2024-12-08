@@ -5,7 +5,6 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes');
 const bannerRoutes = require('./routes/bannerRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
-
 const transactionRoutes = require('./routes/transactionRoutes');
 
 dotenv.config();
@@ -16,11 +15,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', authRoutes);
 app.use('/api', bannerRoutes);
 app.use('/api', serviceRoutes);
-
 app.use('/api', transactionRoutes);
 
 app.use('/uploads', express.static('uploads'));
 
-app.listen(4000, () => {
-    console.log('Server running on port 4000');
+const port = process.env.PORT || 4000;
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });

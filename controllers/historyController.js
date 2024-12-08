@@ -20,10 +20,11 @@ const getHistory = async (req, res) => {
       }
     });
   } catch (err) {
+    console.error(err);
     res.status(500).json({
       status: 500,
       message: 'Internal server error',
-      data: null
+      data: err.message
     });
   }
 };

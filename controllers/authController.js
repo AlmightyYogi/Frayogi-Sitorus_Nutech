@@ -5,40 +5,6 @@ const User = require('../models/userModel');
 const path = require('path');
 const fs = require('fs');
 
-// const register = (req, res) => {
-//   const { email, first_name, last_name, password } = req.body;
-
-//   if (!email || !first_name || !last_name || !password) {
-//     return res.status(400).json({
-//       status: 102,
-//       message: 'Parameter tidak lengkap',
-//       data: null
-//     });
-//   }
-
-//   if (!/\S+@\S+\.\S+/.test(email)) {
-//     return res.status(400).json({
-//       status: 102,
-//       message: 'Parameter email tidak sesuai format',
-//       data: null
-//     });
-//   }
-
-//   bcrypt.hash(password, 10, (err, hashedPassword) => {
-//     if (err) return res.status(500).json({ status: 500, message: 'Internal server error' });
-
-//     User.create(email, first_name, last_name, hashedPassword, (err, result) => {
-//       if (err) return res.status(500).json({ status: 500, message: 'Error saat registrasi', data: null });
-
-//       return res.status(200).json({
-//         status: 0,
-//         message: 'Registrasi berhasil silahkan login',
-//         data: null
-//       });
-//     });
-//   });
-// };
-
 const register = async (req, res) => {
   const { email, first_name, last_name, password } = req.body;
   try {
@@ -51,7 +17,7 @@ const register = async (req, res) => {
     return res.status(201).json({
       status: 0,
       message: "Registrasi berhasil silahkan login",
-      data: null
+      data: result
     })
   } catch (error) {
     return res.status(500).json({

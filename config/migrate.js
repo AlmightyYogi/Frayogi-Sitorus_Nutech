@@ -18,7 +18,7 @@ const createTables = async () => {
         await pool.query(`
             CREATE TABLE IF NOT EXISTS transactions (
                 id INT AUTO_INCREMENT PRIMARY KEY,
-                user_id INT,
+                user_id INT NOT NULL,
                 service_code VARCHAR(255) NOT NULL,
                 transaction_type VARCHAR(255),
                 description VARCHAR(255),
@@ -32,10 +32,9 @@ const createTables = async () => {
         await pool.query(`
             CREATE TABLE IF NOT EXISTS services (
                 id INT AUTO_INCREMENT PRIMARY KEY,
-                service_code VARCHAR(50),
-                service_name VARCHAR(255),
-                service_name VARCHAR(255),
-                service_tariff INT(11),
+                service_code VARCHAR(50) NOT NULL,
+                service_name VARCHAR(255) NOT NULL,
+                service_tariff INT NOT NULL
             );
         `);
 
@@ -43,9 +42,9 @@ const createTables = async () => {
         await pool.query(`
             CREATE TABLE IF NOT EXISTS banners (
                 id INT AUTO_INCREMENT PRIMARY KEY,
-                banner_name VARCHAR(255),
-                banner_image VARCHAR(255),
-                description TEXT,
+                banner_name VARCHAR(255) NOT NULL,
+                banner_image VARCHAR(255) NOT NULL,
+                description TEXT
             );
         `);
 

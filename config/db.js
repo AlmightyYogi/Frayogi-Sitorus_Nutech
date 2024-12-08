@@ -1,18 +1,20 @@
 const mysql = require('mysql2');
-
-// const db = mysql.createConnection({
-//   host: 'localhost',
-//   user: 'root',
-//   password: '',
-//   database: 'nutech'
-// });
+require('dotenv').config();
 
 const db = mysql.createConnection({
-    host: 'mysql.railway.internal',
-    user: 'root',
-    password: 'bOWHkvIrTtxiNfYSYrFekksFnmSdFirN',
-    database: 'railway'
-  });
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
+});
+
+// const db = mysql.createConnection({
+//     host: 'mysql.railway.internal',
+//     user: 'root',
+//     password: 'bOWHkvIrTtxiNfYSYrFekksFnmSdFirN',
+//     database: 'railway'
+//   });
 
 db.connect(err => {
   if (err) {

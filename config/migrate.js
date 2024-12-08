@@ -22,4 +22,4 @@ const migration = async () => {
     await createTables();
 };
 
-module.exports = { createTables };
+module.exports = migration;

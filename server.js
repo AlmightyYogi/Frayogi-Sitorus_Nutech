@@ -6,6 +6,8 @@ const authRoutes = require('./routes/authRoutes');
 const bannerRoutes = require('./routes/bannerRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const migration = require('./config/migrate');
+migration();
 
 dotenv.config();
 app.use(cors());

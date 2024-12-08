@@ -8,7 +8,7 @@ const topUp = (req, res) => {
   if (isNaN(top_up_amount) || top_up_amount <= 0) {
     return res.status(400).json({
       status: 102,
-      message: 'Paramter amount hanya boleh angka dan tidak boleh lebih kecil dari 0',
+      message: 'Parameter amount hanya boleh angka dan tidak boleh lebih kecil dari 0',
       data: null
     });
   }

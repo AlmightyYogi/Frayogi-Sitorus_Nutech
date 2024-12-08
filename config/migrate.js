@@ -1,20 +1,69 @@
-const pool = require('./db')
+const pool = require('./db');
 
 const createTables = async () => {
     try {
+        // Create users table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            email VARCHAR(255) UNIQUE NOT NULL,
-            first_name VARCHAR(255) NOT NULL,
-            last_name VARCHAR(255) NOT NULL,
-            password VARCHAR(20) NOT NULL,
-            profile_image VARCHAR(255)
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                first_name VARCHAR(255) NOT NULL,
+                last_name VARCHAR(255) NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                profile_image VARCHAR(255)
             );
         `);
-        console.log('users table created');
+
+        // Create transactions table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS transactions (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT,
+                service_code VARCHAR(255) NOT NULL,
+                transaction_type VARCHAR(255),
+                description VARCHAR(255),
+                total_amount DECIMAL(10, 2),
+                invoice_number VARCHAR(255),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
+        `);
+
+        // Create services table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS services (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                service_code VARCHAR(50),
+                service_name VARCHAR(255),
+                service_name VARCHAR(255),
+                service_tariff INT(11),
+            );
+        `);
+
+        // Create banners table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS banners (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                banner_name VARCHAR(255),
+                banner_image VARCHAR(255),
+                description TEXT,
+            );
+        `);
+
+        // Create balances table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS balances (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                balance DECIMAL(10, 2) DEFAULT 0.00,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
+        `);
+
+        console.log('Tables created successfully');
     } catch (error) {
-        console.log('error: ', error.message);
+        console.log('Error: ', error.message);
     }
 };
 

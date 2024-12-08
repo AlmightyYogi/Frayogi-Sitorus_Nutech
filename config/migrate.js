@@ -34,6 +34,7 @@ const createTables = async () => {
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 service_code VARCHAR(50) NOT NULL,
                 service_name VARCHAR(255) NOT NULL,
+                service_icon VARCHAR(255) NOT NULL,
                 service_tariff INT NOT NULL
             );
         `);

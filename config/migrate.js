@@ -24,6 +24,7 @@ const createTables = async () => {
                 description VARCHAR(255),
                 total_amount DECIMAL(10, 2),
                 invoice_number VARCHAR(255),
+                created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
         `);
